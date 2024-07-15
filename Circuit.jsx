@@ -1,9 +1,10 @@
 import Sketch from "react-p5";
 import PropTypes from 'prop-types';
-import {useEffect, useState} from 'react'
+import {useState, useEffect} from 'react'
 function Circuit(props) {
   
   const setup = (p5, parentRed) => {
+
     p5.createCanvas(1280, 720).parent(parentRed);
   };
   const [array , setArray] = useState([[]]) 
@@ -14,11 +15,11 @@ function Circuit(props) {
     for (let i = 0; i < props.opcion.length; i++) {
       if (props.opcion[i] !== "Paralelo" && newArray[newArray.length - 1].length < 5) {
         newArray[newArray.length - 1].push("Serie");
-        
+        console.log("antes del cambio : " + newArray);
       }
 
       if (props.opcion[i] === "Paralelo") {
-        newArray.push(["Serie"]);
+        newArray.push([]);
       }
     }
 
@@ -26,11 +27,19 @@ function Circuit(props) {
     setArray(newArray);
     
   }, [props.opcion]);
+  console.log( array)
+  console.log(props.opcion2)
+  console.log("opcion " + props.opcion)
+  
+
   let arregloSerie = props.opcion.filter(serie => serie == "Serie")
   let arregloParalelo = props.opcion.filter(paralelo => paralelo == "Paralelo")
-  
+  //console.log("opciones : " + props.opcion)
+  //console.log("opcionesSerie : " + arregloSerie)
+  //console.log("opcionesParalelo : " + arregloParalelo)
   const draw = (p5) => {
-    let clicks = Math.min(props.click, 5);
+    //let clicks = Math.min(props.click, 5);
+    let clicks = props.click
     p5.clear()
     let cuadrado1Inicial = 50; //50
     let cuadrado1Final = 50;
@@ -65,6 +74,8 @@ function Circuit(props) {
     let incremento = 10;
     let acumulacion = 0;
     let save;
+    const salvaY1 = y1Inicial
+    const salvaY2 = y2Inicial
     
     
 
@@ -93,81 +104,100 @@ function Circuit(props) {
       p5.line(400, 400, 50, 400); //abajo*/
       var salva2 = []
       var salva3 = []
-      var salvaY1=y1Inicial
-      var salvaY2=y2Inicial
-      let incrementoX=0
-      for(let h=0;h<array.length;h++){
-        if(h>0){
-          y1=salvaY1
-          y2=salvaY2
-          y1Inicial=salvaY1
-          y2Inicial=salvaY2
-          salva3=[]
-          salva2=[]
+      var incrementoX=0;
+      var paralelo = 0
+      var isParalelo 
+      var numerosSerie=0
+      for(let y=0; y<props.opcion.length; y++){
+        for(let z = 0; z < props.opcion.length; z++){
+          console.log("hola " + props.opcion[y].length)
         }
-        incrementoX=h*100
-      for (let i = 0; i < array[h].length; i++) {
-        let variable
-        
-        for (let j = 1; j <= 9; j++) {
-          
-          if (j == 1) {
-            p5.line(300+incrementoX,2,300+incrementoX,40)
-            p5.line(x1 - 10+incrementoX, y1Inicial - 10, x1+incrementoX, y2Inicial - 10);
-           
-            if(i>0){
-              salva2.push(y1Inicial-10)
-              //console.log("salva2 : " + salva2)
-              
-            }
-            for(let k = 0; k<= clicks; k++){
-              p5.line(300+incrementoX,salva3[k],300+incrementoX,salva2[k])
-            }
-            
-          } else if (j == 9) {
-            p5.line(
-              x2Inicial+incrementoX,
-              y1Inicial + acumulacion * incremento,
-              x2Inicial + 10+incrementoX,
-              y2Inicial + acumulacion * incremento
-            );
-            if(clicks>1){
-              salva3.push(y2Inicial + acumulacion * incremento)
-              //console.log("salva3 : " + salva3)
-            }
-            
-            if(i==array[h].length-1){
-              
-              variable=y2Inicial + acumulacion * incremento
-              p5.line(300+incrementoX,variable,300+incrementoX,cuadrado2Final + (incCuadrado * clicks))
-            }//if(i==array.length-1){
-              p5.line(300+incrementoX,cuadrado2Final + (incCuadrado * clicks),300,cuadrado2Final + (incCuadrado * clicks))
-              p5.line(300+incrementoX,2,300,2)
-            //}
-          } else {
-            p5.line(x1+incrementoX, y1, x2+incrementoX, y2);
-          
-            save = x1;
-            x1 = x2;
-            x2 = save;
-            
-            y1 += incremento;
-            y2 += incremento;
-            acumulacion++;
-          }
-        }
-        y2Inicial = y2Inicial + 110;
-        y1Inicial = y1Inicial + 110;
-        y1 = y1Inicial;
-        y2 = y2Inicial;
-        x1 = x1Inicial;
-        x2 = x2Inicial;
-        
-        acumulacion = 0;
-        
         
       }
-    }
+      for(let h = 0; h < array.length; h++){
+        incrementoX=h*100
+        for (let i = 0; i < array[h].length; i++) {
+          let variable
+          numerosSerie++
+          isParalelo=0
+          if(h>0){
+            
+            y1=salvaY1
+            y2=salvaY2
+            y1Inicial=salvaY1
+            y2Inicial=salvaY2
+            paralelo++
+            
+            numerosSerie=0
+            
+          }
+          if(props.opcion[i+1]=="Paralelo"){
+            isParalelo=1
+          }
+          
+          for (let j = 1; j <= 9; j++) {
+            
+            if (j == 1) {
+              for(let l=0;l<=paralelo;l++){
+                p5.line(300+incrementoX,2,300+incrementoX,40)
+              }
+              
+              p5.line((x1 - 10)+incrementoX, y1Inicial - 10, x1+incrementoX, y2Inicial - 10);
+             
+              if(i>0&&isParalelo!=2){
+                
+                salva2.push(y1Inicial-10)
+                salva2= Array.from(new Set(salva2))
+                salva2= salva2.filter(item => item != 40)
+                //console.log("salva2 : " + salva2)
+                
+              }
+              if(props.opcion[i]=="Serie"){
+              for(let k = 0; k<= numerosSerie; k++){
+                p5.line(300+incrementoX,salva3[k],300+incrementoX,salva2[k])
+              }}
+              
+            } else if (j == 9) {
+              p5.line(
+                x2Inicial+incrementoX,
+                y1Inicial + acumulacion * incremento,
+                x2Inicial + 10 +incrementoX,
+                y2Inicial + acumulacion * incremento
+              );
+              if(clicks>1){
+                salva3.push(y2Inicial + acumulacion * incremento)
+                //console.log("salva3 : " + salva3)
+              }
+              
+              if(isParalelo==1){
+                variable=y2Inicial + acumulacion * incremento
+                p5.line(300+incrementoX,variable,300+incrementoX,cuadrado2Final + (incCuadrado * clicks))
+              }
+            } else {
+              p5.line(x1+incrementoX, y1, x2+incrementoX, y2);
+            
+              save = x1;
+              x1 = x2;
+              x2 = save;
+              
+              y1 += incremento;
+              y2 += incremento;
+              acumulacion++;
+            }
+          }
+          y2Inicial = y2Inicial + 110;
+          y1Inicial = y1Inicial + 110;
+          y1 = y1Inicial;
+          y2 = y2Inicial;
+          x1 = x1Inicial;
+          x2 = x2Inicial;
+          
+          acumulacion = 0;
+         
+          
+        }
+        
+      }
       
       
     
